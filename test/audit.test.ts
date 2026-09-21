@@ -86,6 +86,15 @@ describe("formatReport", () => {
     expect(text).not.toContain("Partial audit");
   });
 
+  it("says barcode rules were not checked on storefront data instead of calling them clean", () => {
+    const report = auditProducts([makeProduct({ images: [] })], storefront);
+    expect(rule(report, "missing-gtin")).toMatchObject({ productsEvaluated: 0, productsAffected: 0 });
+    expect(rule(report, "no-image").productsEvaluated).toBe(1);
+    const text = formatReport(report);
+    expect(text).toContain("Not checked (the data has no barcodes): missing-gtin, invalid-gtin.");
+    expect(text).toContain("No products affected: missing-brand, missing-category.");
+  });
+
   it("flags a partial audit without extrapolating", () => {
     const report = auditProducts([makeProduct()], { ...storefront, complete: false, maxProducts: 1 });
     const text = formatReport(report);

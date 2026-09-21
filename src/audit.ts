@@ -23,6 +23,8 @@ export interface RuleSummary {
   ruleId: RuleId;
   severity: Severity;
   title: string;
+  /** Products the rule could evaluate; 0 means the data never had what it needs. */
+  productsEvaluated: number;
   productsAffected: number;
   valueAtLowestPrice: number;
   /** Affected products with no variant priced above zero, so they add nothing to the value. */
@@ -57,8 +59,8 @@ const fromCents = (cents: number): number => cents / 100;
 
 export function auditProducts(products: readonly Product[], ctx: AuditContext): AuditReport {
   const skipped = { total: 0, zeroPrice: 0, noShipping: 0 };
-  const perRule = new Map<RuleId, { count: number; cents: number; noPrice: number; samples: string[] }>(
-    RULES.map((r) => [r.id, { count: 0, cents: 0, noPrice: 0, samples: [] }]),
+  const perRule = new Map<RuleId, { evaluated: number; count: number; cents: number; noPrice: number; samples: string[] }>(
+    RULES.map((r) => [r.id, { evaluated: 0, count: 0, cents: 0, noPrice: 0, samples: [] }]),
   );
   const severityOf = new Map(RULES.map((r) => [r.id, r.severity]));
   const overall = { count: 0, cents: 0, noPrice: 0 };
@@ -75,6 +77,9 @@ export function auditProducts(products: readonly Product[], ctx: AuditContext): 
     checked++;
 
     const price = lowestListedPrice(product);
+    for (const rule of RULES) {
+      if (rule.appliesTo?.(product) ?? true) perRule.get(rule.id)!.evaluated++;
+    }
     // A rule reports at most one finding per product, but guard anyway so the
     // "each product counts once" guarantee doesn't depend on that.
     const ruleIds = new Set(checkProduct(product).map((f) => f.ruleId));
@@ -114,6 +119,7 @@ export function auditProducts(products: readonly Product[], ctx: AuditContext): 
         ruleId: rule.id,
         severity: rule.severity,
         title: rule.title,
+        productsEvaluated: acc.evaluated,
         productsAffected: acc.count,
         valueAtLowestPrice: fromCents(acc.cents),
         affectedWithoutPrice: acc.noPrice,
@@ -168,8 +174,11 @@ export function formatReport(report: AuditReport): string {
     }
   }
 
-  const clean = report.rules.filter((r) => r.productsAffected === 0).map((r) => r.ruleId);
-  if (clean.length > 0) lines.push("", `No products affected: ${clean.join(", ")}.`);
+  const clean = report.rules.filter((r) => r.productsEvaluated > 0 && r.productsAffected === 0).map((r) => r.ruleId);
+  const unchecked = report.rules.filter((r) => r.productsEvaluated === 0).map((r) => r.ruleId);
+  if (report.productsChecked > 0 && (clean.length > 0 || unchecked.length > 0)) lines.push("");
+  if (report.productsChecked > 0 && clean.length > 0) lines.push(`No products affected: ${clean.join(", ")}.`);
+  if (report.productsChecked > 0 && unchecked.length > 0) lines.push(`Not checked (the data has no barcodes): ${unchecked.join(", ")}.`);
 
   lines.push(
     "",

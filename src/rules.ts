@@ -20,6 +20,8 @@ export interface Rule {
   title: string;
   rationale: string;
   fix: string;
+  /** Rules that need data the source may not carry (barcodes) say so here. Defaults to always. */
+  appliesTo?(product: Product): boolean;
   check(product: Product): Finding[];
 }
 
@@ -104,6 +106,7 @@ export const RULES: readonly Rule[] = [
     fix:
       "Enter the manufacturer's UPC/EAN in each variant's Barcode field. If the product has no GTIN, leave it empty " +
       "and set identifier_exists to no in your feed app.",
+    appliesTo: hasBarcodeData,
     check: (p) => {
       if (!hasBarcodeData(p)) return [];
       const variants = p.variants ?? [];
@@ -121,6 +124,7 @@ export const RULES: readonly Rule[] = [
       "Google validates GTIN length and the GS1 check digit and disapproves items whose GTIN fails either check.",
     fix:
       "Copy the barcode from the product packaging or the manufacturer. Internal SKUs do not belong in the Barcode field.",
+    appliesTo: hasBarcodeData,
     check: (p) => {
       if (!hasBarcodeData(p)) return [];
       const problems: string[] = [];
