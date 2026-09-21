@@ -1,0 +1,50 @@
+{
+  "name": "catalog-mcp",
+  "version": "0.1.0",
+  "description": "MCP server that audits a Shopify storefront or a product list for Google Shopping / Meta catalog readiness.",
+  "license": "MIT",
+  "author": "Salih Küçükkayış",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msalihk/catalog-mcp.git"
+  },
+  "homepage": "https://github.com/msalihk/catalog-mcp#readme",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "shopify",
+    "google-shopping",
+    "product-feed",
+    "catalog"
+  ],
+  "type": "module",
+  "bin": {
+    "catalog-mcp": "dist/index.js"
+  },
+  "main": "dist/server.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "dev": "tsx src/index.ts",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
+  }
+}
