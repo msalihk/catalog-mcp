@@ -83,7 +83,7 @@ export const RULES: readonly Rule[] = [
   {
     id: "gtin-unknown",
     severity: "info",
-    title: "GTIN status unknown",
+    title: "GTINs unknown (the data has no barcodes)",
     rationale:
       "Shopify's public products.json does not include variant barcodes, so an audit of storefront data cannot tell " +
       "whether GTINs are set or valid. This is not a finding that barcodes are missing.",
