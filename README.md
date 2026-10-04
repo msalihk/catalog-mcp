@@ -177,7 +177,9 @@ The tests cover each rule, GTIN check digits (worked out by hand in the test com
 
 ## Related
 
-Feedwatch (https://feedwatch.co), a product by the same author, runs the same kind of checks continuously and applies fixes inside Shopify admin.
+- [Feedwatch](https://feedwatch.co), a Shopify app by the same author, runs the same kind of checks continuously and applies fixes inside Shopify admin.
+- [What 3,170 Shopify catalogs look like from the outside](https://feedwatch.co/benchmarks): how often these findings turn up in the public catalogs of stores that run Google Ads, with the method.
+- [Guides to Merchant Center errors on Shopify](https://feedwatch.co/guides): one page per error, sourced from Google's and Shopify's help pages.
 
 ## License
 
